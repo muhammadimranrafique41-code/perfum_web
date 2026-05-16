@@ -1,18 +1,42 @@
 'use client'
 
-import { motion, useScroll, useTransform } from 'framer-motion'
 import { useRef } from 'react'
-import { EASE_SNAP, EASE_LUXURY } from '@/lib/animations'
+import { motion, useScroll, useTransform, useMotionValue } from 'framer-motion'
 
-const containerVariants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.2, delayChildren: 0.6 } },
+function MagneticCta() {
+  const ref = useRef<HTMLAnchorElement>(null)
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const rect = ref.current?.getBoundingClientRect()
+    if (!rect) return
+    const cx = rect.left + rect.width / 2
+    const cy = rect.top + rect.height / 2
+    const dx = e.clientX - cx
+    const dy = e.clientY - cy
+    const dist = Math.sqrt(dx * dx + dy * dy)
+    const strength = Math.max(0, 1 - dist / 200)
+    x.set(dx * strength * 0.3)
+    y.set(dy * strength * 0.3)
+  }
+
+  return (
+    <motion.a
+      ref={ref}
+      href="#fragrance"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={() => { x.set(0); y.set(0) }}
+      style={{ x, y, borderRadius: 0 }}
+      whileTap={{ scale: 0.97 }}
+      className="inline-block border border-accent text-accent hover:bg-accent hover:text-bg px-8 py-3 text-label tracking-[0.2em] uppercase transition-colors duration-medium"
+    >
+      Discover the Fragrance
+    </motion.a>
+  )
 }
 
-const childVariants = {
-  hidden: { opacity: 0, y: 48 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.9, ease: EASE_LUXURY } },
-}
+const titleWords = ['Noir', 'Éternel']
 
 export function Hero() {
   const sectionRef = useRef<HTMLElement>(null)
@@ -22,70 +46,83 @@ export function Hero() {
     offset: ['start start', 'end start'],
   })
 
-  const textOpacity = useTransform(scrollYProgress, [0, 0.4], [1, 0])
-  const textY = useTransform(scrollYProgress, [0, 0.4], [0, -80])
+  const textOpacity = useTransform(scrollYProgress, [0, 0.35], [1, 0])
+  const textX = useTransform(scrollYProgress, [0, 0.35], [0, -80])
+
+  const bgOpacity = useTransform(scrollYProgress, [0, 1], [1, 0])
+  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '20%'])
 
   return (
-    <section ref={sectionRef} className="relative min-h-dvh flex items-center justify-center overflow-hidden">
+    <section ref={sectionRef} className="relative min-h-[100dvh] flex items-center overflow-hidden">
       <motion.div
-        style={{ opacity: textOpacity, y: textY }}
-        className="relative z-10 flex flex-col items-center px-[var(--section-padding-x)] text-center"
+        style={{ y: bgY, opacity: bgOpacity }}
+        className="absolute inset-0 z-0"
       >
-        <motion.p
-          variants={childVariants}
-          initial="hidden"
-          animate="visible"
-          className="text-label tracking-[0.4em] text-muted uppercase font-body mb-8"
-        >
-          Haute Parfumerie
-        </motion.p>
+        <div className="absolute inset-0 bg-gradient-to-br from-bg via-bg to-surface" />
+        <div className="absolute top-1/2 right-0 w-[40vw] h-[80vh] opacity-[0.04]">
+          <motion.div
+            animate={{ rotate: [0, 360] }}
+            transition={{ duration: 60, repeat: Infinity, ease: 'linear' }}
+            className="w-full h-full rounded-full bg-accent blur-[120px]"
+          />
+        </div>
+      </motion.div>
 
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="overflow-hidden"
-        >
-          <motion.h1
-            variants={childVariants}
-            className="font-display text-display-2xl font-normal leading-[0.95] tracking-[-0.02em] text-text-primary"
-          >
-            Noir
-          </motion.h1>
-        </motion.div>
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="overflow-hidden"
-        >
-          <motion.h1
-            variants={childVariants}
-            className="font-display text-display-2xl font-normal leading-[0.95] tracking-[-0.02em] text-text-primary"
-          >
-            Éternel
-          </motion.h1>
-        </motion.div>
+      <motion.div
+        style={{ opacity: textOpacity, x: textX }}
+        className="relative z-10 w-full px-[var(--section-padding-x)]"
+      >
+        <div className="max-w-[1400px] mx-auto">
+          <div className="max-w-3xl">
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3, ease: [0.2, 0.9, 0.4, 1.0] }}
+              className="text-label tracking-[0.4em] text-accent uppercase font-body mb-8"
+            >
+              Haute Parfumerie
+            </motion.p>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1.5, delay: 1.2 }}
-          className="mt-6 font-body text-sm font-extralight tracking-[0.12em] text-muted"
-        >
-          Where darkness meets desire · A fragrance without boundaries
-        </motion.p>
+            <div className="overflow-hidden mb-4">
+              <motion.h1
+                initial={{ opacity: 0, y: 80 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1.0, delay: 0.5, ease: [0.2, 0.9, 0.4, 1.0] }}
+                className="font-display text-display-2xl font-normal leading-[0.9] tracking-[-0.02em] text-text-primary"
+              >
+                Noir
+              </motion.h1>
+            </div>
+            <div className="overflow-hidden mb-6">
+              <motion.h1
+                initial={{ opacity: 0, y: 80 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1.0, delay: 0.65, ease: [0.2, 0.9, 0.4, 1.0] }}
+                className="font-display text-display-2xl font-normal leading-[0.9] tracking-[-0.02em] text-accent"
+              >
+                Éternel
+              </motion.h1>
+            </div>
 
-        <motion.a
-          href="#fragrance"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.6, ease: EASE_SNAP }}
-          className="mt-12 border border-accent text-accent hover:bg-accent hover:text-bg px-8 py-3 text-label tracking-[0.2em] uppercase transition-all duration-medium"
-          style={{ borderRadius: 0 }}
-        >
-          Discover the Fragrance
-        </motion.a>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 1.0, ease: [0.2, 0.9, 0.4, 1.0] }}
+              className="font-body text-sm font-light leading-relaxed text-muted max-w-md mb-12"
+            >
+              Where darkness meets desire. A fragrance without boundaries — 
+              born in the silence of an ancient Parisian atelier.
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 1.3, ease: [0.2, 0.9, 0.4, 1.0] }}
+            >
+              <MagneticCta />
+            </motion.div>
+          </div>
+        </div>
       </motion.div>
     </section>
   )

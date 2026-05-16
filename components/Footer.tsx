@@ -24,18 +24,21 @@ export function Footer() {
           initial="hidden"
           whileInView="visible"
           viewport={VIEWPORT_ONCE}
-          className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12"
+          className="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-12"
         >
-          <motion.div variants={fadeIn}>
+          <motion.div variants={fadeIn} className="md:col-span-2">
             <p className="font-display italic text-xl tracking-[0.3em] text-text-primary mb-3">
               NOIR ÉTERNEL
             </p>
-            <p className="font-body text-label tracking-[0.2em] uppercase text-muted">
-              Haute Parfumerie · Paris
+            <p className="font-body text-label tracking-[0.2em] uppercase text-muted max-w-xs">
+              Haute Parfumerie · Paris Est. 1887
             </p>
           </motion.div>
 
           <motion.div variants={fadeIn} className="flex flex-col gap-3">
+            <p className="font-body text-label tracking-[0.2em] uppercase text-accent mb-2">
+              Navigation
+            </p>
             {navLinks.map((link) => (
               <a
                 key={link.label}
@@ -48,6 +51,9 @@ export function Footer() {
           </motion.div>
 
           <motion.div variants={fadeIn} className="flex flex-col gap-3">
+            <p className="font-body text-label tracking-[0.2em] uppercase text-accent mb-2">
+              Legal
+            </p>
             {legalLinks.map((link) => (
               <a
                 key={link.label}
@@ -62,7 +68,10 @@ export function Footer() {
 
         <motion.div
           variants={fadeIn}
-          className="max-w-6xl mx-auto mt-16 pt-8 border-t border-border text-center"
+          initial="hidden"
+          whileInView="visible"
+          viewport={VIEWPORT_ONCE}
+          className="max-w-[1400px] mx-auto mt-16 pt-8 border-t border-border text-center"
         >
           <p className="font-body text-label tracking-[0.15em] text-muted">
             © 2026 Noir Éternel · All rights reserved

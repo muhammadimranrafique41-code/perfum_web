@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState, useEffect, useRef } from 'react'
+import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { SPRING_GENTLE, SPRING_STIFF } from '@/lib/animations'
 
 const navLinks = [
   { label: 'Story', href: '#story' },
@@ -10,6 +11,44 @@ const navLinks = [
   { label: 'Collection', href: '#collection' },
   { label: 'Fragrance', href: '#fragrance' },
 ]
+
+function MagneticCta() {
+  const ref = useRef<HTMLAnchorElement>(null)
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const rect = ref.current?.getBoundingClientRect()
+    if (!rect) return
+    const cx = rect.left + rect.width / 2
+    const cy = rect.top + rect.height / 2
+    const dx = e.clientX - cx
+    const dy = e.clientY - cy
+    const dist = Math.sqrt(dx * dx + dy * dy)
+    const maxDist = 200
+    const strength = Math.max(0, 1 - dist / maxDist)
+    x.set(dx * strength * 0.3)
+    y.set(dy * strength * 0.3)
+  }
+
+  const handleMouseLeave = () => {
+    x.set(0)
+    y.set(0)
+  }
+
+  return (
+    <motion.a
+      ref={ref}
+      href="#fragrance"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ x, y, borderRadius: 0 }}
+      className="border border-accent text-accent hover:bg-accent hover:text-bg px-5 py-2 text-label tracking-[0.2em] uppercase transition-colors duration-fast"
+    >
+      Discover
+    </motion.a>
+  )
+}
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
@@ -47,21 +86,17 @@ export function Navbar() {
 
         <div className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => (
-            <a
+            <motion.a
               key={link.label}
               href={link.href}
+              whileHover={{ y: -1 }}
+              transition={SPRING_GENTLE}
               className="text-label font-body tracking-[0.2em] uppercase text-muted hover:text-text-primary transition-colors duration-fast"
             >
               {link.label}
-            </a>
+            </motion.a>
           ))}
-          <a
-            href="#fragrance"
-            className="border border-accent text-accent hover:bg-accent hover:text-bg px-5 py-2 text-label tracking-[0.2em] uppercase transition-all duration-fast"
-            style={{ borderRadius: 0 }}
-          >
-            Discover
-          </a>
+          <MagneticCta />
         </div>
 
         <button
@@ -71,6 +106,7 @@ export function Navbar() {
         >
           <motion.span
             animate={open ? { rotate: 45, y: 6 } : { rotate: 0, y: 0 }}
+            transition={SPRING_STIFF}
             className="block w-6 h-px bg-text-primary"
           />
           <motion.span
@@ -79,6 +115,7 @@ export function Navbar() {
           />
           <motion.span
             animate={open ? { rotate: -45, y: -6 } : { rotate: 0, y: 0 }}
+            transition={SPRING_STIFF}
             className="block w-6 h-px bg-text-primary"
           />
         </button>
@@ -90,6 +127,7 @@ export function Navbar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
             className="fixed inset-0 z-[-1] bg-bg/95 backdrop-blur-lg"
           >
             <motion.div
@@ -108,7 +146,7 @@ export function Navbar() {
                   href={link.href}
                   variants={{
                     hidden: { opacity: 0, y: 24 },
-                    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.2, 0.9, 0.4, 1.0] } },
+                    visible: { opacity: 1, y: 0, transition: SPRING_GENTLE },
                   }}
                   onClick={() => setOpen(false)}
                   className="font-display text-display-lg text-text-primary hover:text-accent transition-colors"
