@@ -19,7 +19,7 @@ export interface ScrollAnimationConfig {
 }
 
 export interface ScrollAnimationReturn {
-  ref: React.RefObject<HTMLElement>
+  ref: React.RefObject<HTMLElement | null>
   opacity: import('framer-motion').MotionValue<number>
   y: import('framer-motion').MotionValue<number>
   scale: import('framer-motion').MotionValue<number>
